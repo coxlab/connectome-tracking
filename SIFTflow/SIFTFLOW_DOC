@@ -1,0 +1,29 @@
+siftflow_test.m : Computes flow between each pair of frames in a dataset
+	and creates corresponding visualization images. Also can use the ground
+	truth (ISBI) to compute the accuracy of correspondences.
+	**Currently does NOT generalize (many constants need to be factored out)
+	and requires some reorganization/documentation.
+
+siftflow_multiframes.m : Function to compute and visualize compounded flow
+	over multiple frames (currently 10).
+	(i.e. for each frame, a pixel's flow value is the displacement between 
+	its current location and its location 10 frames forward.)
+
+
+seg2D.m
+
+seg3D.m
+
+seg3D_labels.m
+
+vis3D.m
+
+eval_seg3D.m
+
+
+num_splits_merges.m
+
+
+OTHER
+paramEstimation.m : Experiments with dual threshold estimation algorithm (not used or documented)
+
