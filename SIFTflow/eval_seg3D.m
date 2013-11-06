@@ -1,7 +1,7 @@
 function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thresh, frameStart, frameEnd)
-    addpath('/n/home08/vtan/matlab_src/mi');
+    %addpath('/n/home08/vtan/matlab_src/mi');
     
-    home_dir = '/n/home08/vtan';
+    home_dir = '/vtan/connectome-tracking';
     dataset = 'isbi_merged';
     base_fname = 'train-';
     numFrames = frameEnd - frameStart + 1;
@@ -14,7 +14,7 @@ function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thres
         idx = i - frameStart + 1; % the index for GT, Seg, EM
         
         disp(['reading images frame ' num2str(i-1)]);
-        im1 = double(imread(['/n/home08/vtan/isbi_2013/pngs/train-labels-' num2str(i-1) '.png']));
+        im1 = double(imread([home_dir '/isbi_2013/pngs/train-labels-' num2str(i-1) '.png']));
         GT(:,:,idx) = im1(1:sz,1:sz);
         im2 = double(imread(sprintf('%s/%s/pngs/%slabels.tif-%02d.png', home_dir, dataset, base_fname, i-1)));
         Seg(:,:,idx) = im2(1:sz,1:sz);
