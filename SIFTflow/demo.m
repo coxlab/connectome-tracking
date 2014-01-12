@@ -1,13 +1,13 @@
-filename = '~/Documents/Research/isbi_2013/train-labels.tif';
-tiffInfo = imfinfo(filename);
-numFrames = numel(tiffInfo);
-Labels = zeros(1024, 1024, numFrames);
-for i = 1:numFrames
-    Labels(:,:,i) = double(imread(filename,'Index',i,'Info',tiffInfo));
-end
+% filename = '~/Documents/Research/isbi_2013/train-labels.tif';
+% tiffInfo = imfinfo(filename);
+% numFrames = numel(tiffInfo);
+% Labels = zeros(1024, 1024, numFrames);
+% for i = 1:numFrames
+%     Labels(:,:,i) = double(imread(filename,'Index',i,'Info',tiffInfo));
+% end
 
-im1=imread('~/Documents/Research/isbi_merged/pngs/train-input-norm-07.png');
-im2=imread('~/Documents/Research/isbi_merged/pngs/train-input-norm-08.png');
+im1=imread('../isbi_merged/pngs/train-input-norm-00.png');
+im2=imread('../isbi_merged/pngs/train-input-norm-01.png');
 %im1=imread('~/Documents/Research/ecs/pngs/ecs5-3_02.png');
 %im2=imread('~/Documents/Research/ecs/pngs/ecs5-3_03.png');
 
@@ -24,11 +24,15 @@ im2=im2double(im2);
 cellsize=3;
 gridspacing=1;
 
-%addpath(fullfile(pwd,'mexDenseSIFT'));
-%addpath(fullfile(pwd,'mexDiscreteFlow'));
+addpath(fullfile(pwd,'mexDenseSIFT'));
+addpath(fullfile(pwd,'mexDiscreteFlow'));
 
 sift1 = mexDenseSIFT(im1,cellsize,gridspacing);
 sift2 = mexDenseSIFT(im2,cellsize,gridspacing);
+size(sift1)
+size(sift2)
+size(im1)
+size(im2)
 
 SIFTflowpara.alpha=2*255;
 SIFTflowpara.d=40*255;
@@ -52,31 +56,31 @@ clear flow;
 flow(:,:,1)=vx;
 flow(:,:,2)=vy;
 %figure;imshow(flowToColor(flow));
-
-correct = 0;
-total = 0;
-TrackedPoints = zeros(1024, 1024);
-[xdim ydim] = size(im2);
-for i = 1:xdim
-    for j = 1:ydim
-        label1 = Labels(i,j,7);
-        if (i+vx(i,j) > 0) && (j+vy(i,j) > 0) && (i+vx(i,j) < xdim) && (j+vy(i,j) < ydim)
-            label2 = Labels(i+vx(i,j),j+vy(i,j), 8);
-            total = total + 1;
-            if label1 == label2
-                correct = correct + 1;
-                TrackedPoints(i,j) = 1;
-            end
-        end
-        
-    end
-end
-
-disp(correct/total);
-imshow(TrackedPoints);
-
-return;
-
-% this is the code doing the brute force matching
-tic;[flow2,energylist2]=mexDiscreteFlow(Sift1,Sift2,[alpha,alpha*20,60,30]);toc
-figure;imshow(flowToColor(flow2));
+% 
+% correct = 0;
+% total = 0;
+% TrackedPoints = zeros(1024, 1024);
+% [xdim ydim] = size(im2);
+% for i = 1:xdim
+%     for j = 1:ydim
+%         label1 = Labels(i,j,7);
+%         if (i+vx(i,j) > 0) && (j+vy(i,j) > 0) && (i+vx(i,j) < xdim) && (j+vy(i,j) < ydim)
+%             label2 = Labels(i+vx(i,j),j+vy(i,j), 8);
+%             total = total + 1;
+%             if label1 == label2
+%                 correct = correct + 1;
+%                 TrackedPoints(i,j) = 1;
+%             end
+%         end
+%         
+%     end
+% end
+% 
+% disp(correct/total);
+% imshow(TrackedPoints);
+% 
+% return;
+% 
+% % this is the code doing the brute force matching
+% tic;[flow2,energylist2]=mexDiscreteFlow(Sift1,Sift2,[alpha,alpha*20,60,30]);toc
+% figure;imshow(flowToColor(flow2));

@@ -1,7 +1,7 @@
 function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thresh, frameStart, frameEnd)
     %addpath('/n/home08/vtan/matlab_src/mi');
     
-    home_dir = '/vtan/connectome-tracking';
+    home_dir = '~/connectome-tracking';
     dataset = 'isbi_merged';
     base_fname = 'train-';
     numFrames = frameEnd - frameStart + 1;
@@ -27,12 +27,15 @@ function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thres
     
     rand_err = SNEMI3D_metrics(GT, Pred);
     %VI = entropy(GT) + entropy(double(PredLabels)) - 2*mutualinfo(GT, PredLabels);
-    VI = 0;
+    VI = vector_entropy(GT(:)) + vector_entropy(Pred(:)) - 2*mutualInformation(GT(:), Pred(:));
     [num_splits, num_merges] = num_splits_merges(GT, Pred);
 end
 
 function e = vector_entropy(v)
-    e = -sum(v .* log2(v));
+    v = double(v);
+    p = hist(v, max(v))/numel(v);
+    p(p==0) = [];
+    e = -sum(p .* log2(p));
 end
 
 function je = joint_entropy(v1, v2) 
@@ -50,5 +53,7 @@ function je = joint_entropy(v1, v2)
 end
 
 function mi = mutualInformation(v1, v2)
-    %mi = vector_entropy(v1) + vector_entropy(v1) - joint_entropy(v1, v2);
+    v1 = double(v1);
+    v2 = double(v2);
+    mi = vector_entropy(v1) + vector_entropy(v1) - joint_entropy(v1, v2);
 end

@@ -20,10 +20,13 @@ function [num_splits, num_merges] = num_splits_merges(GT, Pred)
         end
     end
     
+    counted_labels = [];
     for i = 1:max_Pred
         Indices = int16(Pred == i);
         labels = unique(GT.*Indices);
-        count = length(labels(labels~=0)) - 1; % remove zeros; -1 for correct obj
+        filtered_labels = setdiff(labels, counted_labels);
+        counted_labels = union(counted_labels, filtered_labels);
+        count = length(filtered_labels(filtered_labels~=0)) - 1; % remove zeros; -1 for correct obj
         
         % don't add it if the count < 0 (this means the index i is not
         % present in the stack)
