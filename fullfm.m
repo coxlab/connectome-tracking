@@ -7,13 +7,12 @@ network{2} = struct('norm', struct('size', 0), 'pool', struct('size', 3, 'stride
 depth = size(ftmap, 3);
 
 effmap = zeros(imsize, imsize, depth);
-size(effmap)
 effcnt = zeros(imsize, imsize, depth);
 effrng = calfpsize(network, size(network, 2), 1) - 1;
 
 for y=1:size(ftmap,1)
     for x=1:size(ftmap,2)
-        effloc = [1 1] + ([y x]-[1 1])*(2.^(size(network,2)-1));
+        effloc = [1 1] + ([y x]-[1 1])*(2.^(size(network,2)));
         
         effmap(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng, :) = ...
         effmap(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng, :) + ftmap(y*ones(1, effrng+1), x*ones(1, effrng+1), :);
@@ -27,7 +26,7 @@ effcnt(effcnt(:)==0) = 1;
 effmap = effmap ./ effcnt;
 
 if (nargout == 0)
-    imagesc(effmap); drawnow;
+    imagesc(effmap(:,:,1)); drawnow;
 end
 
 

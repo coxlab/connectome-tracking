@@ -137,6 +137,7 @@ def slmprop(X, network):
 # MAIN
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('fname', default="")
+parser.add_argument('size')
 args = parser.parse_args()
 
 if not args.fname:
@@ -146,6 +147,11 @@ else:
   img = io.imread(args.fname, as_grey=True).astype('f')
   print 'Using image ' + args.fname
 
+print 'Image size ' + args.size
+print img.shape
+size = int(args.size)
+img = img[0:size, 0:size]
+print img.shape
 network = slminit()
 
 t1 = time.time()
