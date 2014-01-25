@@ -1,8 +1,25 @@
-function PredLabels = seg3D_labels_v2(Seg, EM, sz, numFrames, thresh)
+function PredLabels = seg3D_graphical(Seg, EM, sz, numFrames, thresh, Features)
+% SEG3D_GRAPHICAL  Given 2D segmentations, produces a 3D labeling.
+%   PredLabels = seg3D_graphical(Features, Seg, EM, sz, numFrames, thresh)
+%   ...
 
-    addpath(fullfile(pwd,'SIFTflow/mexDenseSIFT'));
-    addpath(fullfile(pwd,'SIFTflow/mexDiscreteFlow'));
-    addpath(fullfile(pwd, 'SIFTflow'));
+    % 'Features' is an optional argument, which defaults to 'SIFT'
+    if ~exist('Features','var') || isempty(Features)
+        Features = 'SIFT';
+    end
+    
+    if strcmp(Features, 'SIFT')
+        disp('Using SIFT features.')
+        addpath(fullfile(pwd,'SIFTflow/mexDenseSIFT'));
+        addpath(fullfile(pwd,'SIFTflow/mexDiscreteFlow'));
+        addpath(fullfile(pwd, 'SIFTflow'));
+    elseif strcmp(Features, 'CoxLab')
+        disp('Using CoxLab features.');
+        addpath(fullfile(pwd, 'SIFTflow'));
+    else
+        error('seg:argChk', 'Invalid value for "Features" argument');
+    end
+    
 
     % final labels matrix
     PredLabels = zeros(sz, sz, numFrames);
@@ -26,10 +43,6 @@ function PredLabels = seg3D_labels_v2(Seg, EM, sz, numFrames, thresh)
     CCStructs{1} = CC_A;
 
     % Add vertices from first frame to the master list 
-%     for i = 1:CC_A.NumObjects
-%         ctr = ctr + 1;
-%         Vertices(1, i) = ctr; 
-%     end
     num_obj = CC_A.NumObjects;
     Vertices(1, 1:num_obj) = 1:num_obj;
     ctr = num_obj + 1;
@@ -59,10 +72,20 @@ function PredLabels = seg3D_labels_v2(Seg, EM, sz, numFrames, thresh)
         im2=imfilter(EM(:,:,i),fspecial('gaussian',7,1.0),'same','replicate');
         im1=im2double(im1);
         im2=im2double(im2);
-        cellsize=3;
-        gridspacing=1;
-        sift1 = mexDenseSIFT(im1,cellsize,gridspacing);
-        sift2 = mexDenseSIFT(im2,cellsize,gridspacing);
+        
+        if strcmp(Features, 'SIFT')
+            cellsize=3;
+            gridspacing=1;
+            sift1 = mexDenseSIFT(im1,cellsize,gridspacing);
+            sift2 = mexDenseSIFT(im2,cellsize,gridspacing);
+        else 
+            % TODO: don't hardcode the +7
+            fname1 = sprintf('isbi_merged/pngs/train-input-norm-%02d.png', i-1);
+            fname2 = sprintf('isbi_merged/pngs/train-input-norm-%02d.png', i);
+            sift1 = coxlab_feat(fname1, sz+7);
+            sift2 = coxlab_feat(fname2, sz+7);
+        end
+        
         SIFTflowpara.alpha=2*255;
         SIFTflowpara.d=40*255;
         SIFTflowpara.gamma=0.005*255;
@@ -85,9 +108,6 @@ function PredLabels = seg3D_labels_v2(Seg, EM, sz, numFrames, thresh)
         
         % for each CC in B
         for j = 1:n
-%             ctr = ctr + 1;
-%             Vertices(i, j) = ctr; 
-
             % get (unique) possible corresponding labels
             flowLabels = arrayfun(@(x) warpedForward(x), CC_B.PixelIdxList{j});
             unq = unique(flowLabels);
@@ -147,7 +167,6 @@ function PredLabels = seg3D_labels_v2(Seg, EM, sz, numFrames, thresh)
        color = C(i);
 
        [frame, num] = find(Vertices == i);
-%        [xs, ys] = ind2sub([sz sz], CCStructs{frame}.PixelIdxList{num});
        Colored = PredLabels(:,:,frame);
        Colored(CCStructs{frame}.PixelIdxList{num}) = color;
        PredLabels(:,:,frame) = Colored; 

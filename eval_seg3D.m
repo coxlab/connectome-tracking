@@ -1,5 +1,4 @@
 function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thresh, frameStart, frameEnd)
-    %addpath('/n/home08/vtan/matlab_src/mi');
     
     home_dir = '~/connectome-tracking';
     dataset = 'isbi_merged';
@@ -10,10 +9,11 @@ function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thres
     GT = zeros(sz, sz, numFrames); % 3D ground truth labels
     Seg = zeros(sz, sz, numFrames); % 2D ground truth segmentation
     EM = zeros(sz, sz, numFrames); % actual images
+    
+    fprintf('Reading images %d to %d.\n', frameStart-1, frameEnd-1);
     for i = frameStart:frameEnd
         idx = i - frameStart + 1; % the index for GT, Seg, EM
         
-        disp(['reading images frame ' num2str(i-1)]);
         im1 = double(imread([home_dir '/isbi_2013/pngs/train-labels-' num2str(i-1) '.png']));
         GT(:,:,idx) = im1(1:sz,1:sz);
         im2 = double(imread(sprintf('%s/%s/pngs/%slabels.tif-%02d.png', home_dir, dataset, base_fname, i-1)));
@@ -23,17 +23,18 @@ function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thres
     end
     
     GT = int16(GT);
-    Pred = seg3D_coxfeat(Seg, EM, sz, numFrames, thresh);  % returns int16
+    %Pred = seg3D_coxfeat(Seg, EM, sz, numFrames, thresh);  % returns int16
     %Pred = seg3D_labels_v2(Seg, EM, sz, numFrames, thresh);  % returns int16
+    Pred = seg3D_graphical(Seg, EM, sz, numFrames, thresh, 'CoxLab');  % returns int16
     
     rand_err = SNEMI3D_metrics(GT, Pred);
     %VI = entropy(GT) + entropy(double(PredLabels)) - 2*mutualinfo(GT, PredLabels);
     VI = vector_entropy(GT(:)) + vector_entropy(Pred(:)) - 2*mutualInformation(GT(:), Pred(:));
     [num_splits, num_merges] = num_splits_merges(GT, Pred);
     
-    fileID = fopen('tempdata2.txt','a');
+    fileID = fopen('foo.txt','a');
     fprintf(fileID,'thresh: %f\n', thresh);
-    fprintf(fileID,'rand: %f, VI: %f, splits: %f. merges: %f\n', rand_err, VI, num_splits, num_merges);
+    fprintf(fileID,'rand: %f, VI: %f, splits: %f, merges: %f\n', rand_err, VI, num_splits, num_merges);
     fclose(fileID);
 end
 
