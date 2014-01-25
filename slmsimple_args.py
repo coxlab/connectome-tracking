@@ -139,18 +139,22 @@ parser = argparse.ArgumentParser(description='')
 parser.add_argument('fname', default="")
 parser.add_argument('size')
 args = parser.parse_args()
+size = int(args.size)
 
 if not args.fname:
-  img = np.random.randn(200, 200).astype(np.float32)
+  img = np.random.randn(size, size).astype(np.float32)
   print 'Using random image'
 else:
-  img = io.imread(args.fname, as_grey=True).astype('f')
+  im = io.imread(args.fname, as_grey=True).astype('f')
+  # pad if necessary and crop down to desired size
+  if img.shape[0] < size:
+    img = np.zeros((size, size))
+    img[:size, :size] = im
+  else
+    img = im[0:size, 0:size]
   print 'Using image ' + args.fname
 
 print 'Image size ' + args.size
-print img.shape
-size = int(args.size)
-img = img[0:size, 0:size]
 print img.shape
 network = slminit()
 
@@ -159,10 +163,6 @@ for i in xrange(100): ftmap = slmprop(img, network)
 t2 = time.time()
 
 network = np.array(network)
-print ftmap.shape
-print network.shape
-print type(ftmap)
-print type(network)
 print '%0.5f s' % (t2-t1)
 
 scipy.io.savemat('fmap.mat', {'fmap': ftmap}, appendmat=False)
