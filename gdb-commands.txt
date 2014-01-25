@@ -1,0 +1,10 @@
+set pagination off
+set logging file testlog.txt
+set logging on
+run
+backtrace
+set logging off
+quit
+
+
+
