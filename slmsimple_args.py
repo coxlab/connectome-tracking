@@ -147,10 +147,10 @@ if not args.fname:
 else:
   im = io.imread(args.fname, as_grey=True).astype('f')
   # pad if necessary and crop down to desired size
-  if img.shape[0] < size:
+  if im.shape[0] < size:
     img = np.zeros((size, size))
     img[:size, :size] = im
-  else
+  else: 
     img = im[0:size, 0:size]
   print 'Using image ' + args.fname
 

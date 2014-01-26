@@ -1,4 +1,12 @@
 function effmap = fullfm(ftmap, imsize)
+% FULLFM Given a Cox lab feature map, interpolates to produces a full pixelwise feature map. 
+%   effmap = fullfm(ftmap, imsize)
+% 
+%   Inputs:
+%       ftmap - Original feature map produced by slmsimple.py
+%       imsize - Size of original image 
+%   Outputs:
+%       effmap - Full feature map
 
 network = cell(1,2);
 network{1} = struct('norm', struct('size', 0), 'pool', struct('size', 3, 'stride', 1), 'filt', struct('size', 9));
