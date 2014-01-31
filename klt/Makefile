@@ -25,7 +25,7 @@ CFLAGS = $(FLAG1) $(FLAG2)
 # There should be no need to modify anything below this line (but
 # feel free to if you want).
 
-EXAMPLES = klt-track1.c klt-track2.c klt-track3.c klt-sift.c test.c 
+EXAMPLES = klt-orig.c klt-sift.c 
 ARCH = convolve.c error.c pnmio.c pyramid.c selectGoodFeatures.c \
        storeFeatures.c trackFeatures.c klt.c klt_util.c writeFeatures.c
 LIB = -L/usr/local/lib -L/usr/lib
@@ -42,19 +42,10 @@ lib: $(ARCH:.c=.o)
 	ar ruv libklt.a $(ARCH:.c=.o)
 	rm -f *.o
 
-klt-track1: libklt.a
+klt-orig: libklt.a
 	$(CC) -O3 $(CFLAGS) -o $@ $@.c -L. -lklt $(LIB) -lm
-
-klt-track2: libklt.a
-	$(CC) -O3 $(CFLAGS) -o $@ $@.c -L. -lklt $(LIB) -lm
-
-klt-track3: libklt.a
-	$(CC) -O3 $(CFLAGS) -ggdb -o $@ $@.c -L. -lklt $(LIB) -lm
 
 klt-sift: libklt.a
-	$(CC) -O3 $(CFLAGS) -o $@ $@.c -L. -lklt $(LIB) -lm
-
-test: libklt.a
 	$(CC) -O3 $(CFLAGS) -o $@ $@.c -L. -lklt $(LIB) -lm
 
 depend:

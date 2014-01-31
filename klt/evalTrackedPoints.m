@@ -1,5 +1,7 @@
 function [truePairs, pctTruePairs, pctHitObjs, pctTrackedObjs,...
-    pctSmallTrackedObjs]=evalTrackedPoints(dataset) 
+    pctSmallTrackedObjs]=evalTrackedPoints(method) 
+
+		home_dir = '/n/home08/vtan';
 
     % for calculating accuracy of a tracked pair between two frames
     correctPairs = 0;
@@ -7,25 +9,20 @@ function [truePairs, pctTruePairs, pctHitObjs, pctTrackedObjs,...
     
     % to calculate pct of objs correctly tracked
     numObjs = 0;    % num objs present in both frames (in ground truth)
-    numHitObjs = 0;    % num objs that are detected in the first frame of a 
-                    %   pair of frames*
-    numTrackedObjs = 0;    % num objs tracked correctly in pairs of frames
-    %   *given that the obj is present in both frames in ground truth
-    
-    % to calculate pct of small objects correctly tracked
-    %numSmallObjs = 0;
-    %numSmallTrackedObjs = 0;
+    numHitObjs = 0;   % num objs that are detected in the first frame of a 
+                    	%   pair of frames*
 
+    numTrackedObjs = 0;    % num objs tracked correctly in pairs of frames
+    	%   *given that the obj is present in both frames in ground truth
+    
     % read in labels from multipage tiff to 3D array 'Labels'
-    filename = '~/Documents/Research/isbi_2013/train-labels.tif';
+    filename = [home_dir '/isbi_2013/train-labels.tif';
     tiffInfo = imfinfo(filename);
     numFrames = numel(tiffInfo);
     Labels = zeros(1024, 1024, numFrames);
     for i = 1:numFrames
         Labels(:,:,i) = double(imread(filename,'Index',i,'Info',tiffInfo));
     end
-    %numLabels = length(unique(Labels(:)));
-
 
     Files = zeros(40000, 5, numFrames-1);
     % for each pair of frames
@@ -38,17 +35,8 @@ function [truePairs, pctTruePairs, pctHitObjs, pctTrackedObjs,...
         objsInFrames = intersect(frame1, frame2);
         numObjs = numObjs + length(objsInFrames);
         
-         
-        % rank the objects in the first frame by increasing size
-        %[Count, ObjLabel] = hist(frame1(:), objsInFrames);
-        %SortedObjCounts = sortrows([Count(:) ObjLabel]);
-    
-        % indices of the smallest 25% of 2D object slices in the frame
-        %SmallObjs = SortedObjCounts(1:round(length(Count)/4), 2);
-        %numSmallObjs = numSmallObjs + length(SmallObjs);
-        
         % read in from file the tracked features between frames j and j+1
-        filename = sprintf('~/Documents/Research/connectome-tracking/%s_features/features%d-%d.csv', dataset, j-1, j);
+        filename = sprintf([home_dir '/klt/%s_features/features%d-%d.csv'], method, j-1, j);
         disp(filename);
         F = csvread(filename);
         xs = F(:,1);
@@ -58,7 +46,6 @@ function [truePairs, pctTruePairs, pctHitObjs, pctTrackedObjs,...
         % arrays to store which objs have been tracked in this pair
         HitObjs = zeros(1,401);
         TrackedObjs = zeros(1,401);
-        %SmallTrackedObjs = zeros(1,401);
         
         % for each tracked feature point
         for i = 1:2:length(xs)-1
@@ -79,10 +66,6 @@ function [truePairs, pctTruePairs, pctHitObjs, pctTrackedObjs,...
                 if currentFrameLabel == nextFrameLabel
                     correctPairs = correctPairs + 1;
                     TrackedObjs(currentFrameLabel + 1) = 1;
-                    
-                    %if any(currentFrameLabel==SmallObjs)
-                    %    SmallTrackedObjs(currentFrameLabel + 1) = 1;
-                    %end
                 else
                     incorrectPairs = incorrectPairs + 1;
                 end
@@ -92,7 +75,6 @@ function [truePairs, pctTruePairs, pctHitObjs, pctTrackedObjs,...
         % sum up the number of objs hit/tracked in this pair of frames
         numHitObjs = numHitObjs + sum(HitObjs);
         numTrackedObjs = numTrackedObjs + sum(TrackedObjs);
-        %numSmallTrackedObjs = numSmallTrackedObjs + sum(SmallTrackedObjs);
     end
 
     % metrics
@@ -100,19 +82,19 @@ function [truePairs, pctTruePairs, pctHitObjs, pctTrackedObjs,...
     pctTruePairs = correctPairs/(correctPairs + incorrectPairs);
     pctHitObjs = numHitObjs/numObjs;
     pctTrackedObjs = numTrackedObjs/numObjs;
-    %pctSmallTrackedObjs = numSmallTrackedObjs/numSmallObjs;
     
-    fout = fopen('~/Documents/Research/connectome-tracking/pipeline-test.txt', 'w+');
-    fprintf(fout, strcat(num2str(truePairs), '\n'));
-    fprintf(fout, strcat(num2str(pctTruePairs), '\n'));
-    fprintf(fout, strcat(num2str(pctHitObjs), '\n'));
-    fprintf(fout, strcat(num2str(pctTrackedObjs), '\n'));
+    fout = fopen([home_dir '/klt/' method '-metrics.txt'], 'a');
+    fprintf(fout, strcat(num2str(truePairs), '\t'));
+    fprintf(fout, strcat(num2str(pctTruePairs), '\t'));
+    fprintf(fout, strcat(num2str(pctHitObjs), '\t'));
+    fprintf(fout, strcat(num2str(pctTrackedObjs), '\t'));
    
+		% compute metrics regarding percent of "small" objects tracked
     for k = 0.05:0.05:0.25
        pctSmallTrackedObjs = smallObjMetrics(k, Files);
-       fprintf(fout, strcat(num2str(pctSmallTrackedObjs), '\n'));
+       fprintf(fout, strcat(num2str(pctSmallTrackedObjs), '\t'));
     end
-    
+    fprintf(fout, '\n')
     
     fclose(fout);
 

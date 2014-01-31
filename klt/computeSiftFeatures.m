@@ -1,9 +1,12 @@
 function computeSiftFeatures(peakthresh, edgethresh)
+
+		run('/n/home08/vtan/vlfeat-0.9.16/toolbox/vl_setup');
+
     peakthresh = str2double(peakthresh);
     edgethresh = str2double(edgethresh);
 
     for i = 0:99
-        infile = sprintf('~/Documents/Research/isbi_2013/pgms/train-input-norm-%d.pgm', i);
+        infile = sprintf('/n/home08/vtan/isbi_2013/pgms/train-input-norm-%d.pgm', i);
         im = double(imread(infile));
 
         % sift features
@@ -12,7 +15,7 @@ function computeSiftFeatures(peakthresh, edgethresh)
         numFeatures = length(F(1,:));
 
         % create output file
-        outfile = sprintf('~/Documents/Research/connectome-tracking/sift_features/init_feat%d.txt', i);
+        outfile = sprintf('/n/home08/vtan/klt/sift_features/init_feat%d.txt', i);
         disp(outfile);
         fout = fopen(outfile, 'w+');
         fprintf(fout, '!!! Warning:  This is a KLT data file.  Do not modify below this line !!!\n\n');

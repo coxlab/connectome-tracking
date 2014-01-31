@@ -1,13 +1,14 @@
 import re
 import argparse
 
-def extract(features="klt"):
+def extract(features="klt", numFeatures=100):
     directory = '%s_features' %(features)
 
     color = 0
-    for i in xrange(99):
+    for i in xrange(numFeatures - 1):
         infile = '%s/features%d-%d.txt' %(directory, i, i+1)
         outfile = '%s/features%d-%d.csv' %(directory, i, i+1)
+        print infile
 
         fin = open(infile, 'r')
         fout = open(outfile, 'w')
@@ -31,9 +32,10 @@ def extract(features="klt"):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--feat', dest='feat', default="klt")
+    parser.add_argument('--numFeat', dest='numFeatures', default="100")
 
     args = parser.parse_args()
-    extract(args.feat)
+    extract(args.feat, int(args.numFeatures))
 
 
 main()

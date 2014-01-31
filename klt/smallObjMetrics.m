@@ -1,17 +1,18 @@
 function pctSmallTrackedObjs=smallObjMetrics(pctSmall, Files)   
+		home_dir = '/n/home08/vtan';
+
     % to calculate pct of small objects correctly tracked
     numSmallObjs = 0;
     numSmallTrackedObjs = 0;
 
     % read in labels from multipage tiff to 3D array 'Labels'
-    filename = '~/Documents/Research/isbi_2013/train-labels.tif';
+    filename = [home_dir '/isbi_2013/train-labels.tif';
     tiffInfo = imfinfo(filename);
     numFrames = numel(tiffInfo);
     Labels = zeros(1024, 1024, numFrames);
     for i = 1:numFrames
         Labels(:,:,i) = double(imread(filename,'Index',i,'Info',tiffInfo));
     end
-    %numLabels = length(unique(Labels(:)));
 
     % for each pair of frames
     for j = 1:numFrames-1
@@ -31,10 +32,7 @@ function pctSmallTrackedObjs=smallObjMetrics(pctSmall, Files)
         SmallObjs = SortedObjCounts(1:round(length(Count)*pctSmall), 2);
         numSmallObjs = numSmallObjs + length(SmallObjs);
         
-        % read in from file the tracked features between frames j and j+1
-        %filename = sprintf('~/Documents/Research/connectome-tracking/%s_features/features%d-%d.csv', dataset, j-1, j);
-        %disp(filename);
-        %F = csvread(filename);    
+        % read the tracked features between frames j and j+1
         F = Files(:,:,j);
         xs = F(:,1);
         ys = F(:,2);
@@ -68,9 +66,4 @@ function pctSmallTrackedObjs=smallObjMetrics(pctSmall, Files)
 
     % metrics
     pctSmallTrackedObjs = numSmallTrackedObjs/numSmallObjs;
-    
-    %fout = fopen('~/Documents/Research/connectome-tracking/pipeline-test.txt', 'a');
-    %fprintf(fout, strcat(num2str(pctSmallTrackedObjs), '\n'));
-    %fclose(fout);
-
 end
