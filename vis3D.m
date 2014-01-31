@@ -17,6 +17,7 @@ function vis3D(Frames)
     cmap = colormap;
     cmap = interp1(linspace(0,1,size(cmap,1)),cmap,linspace(0,1,256));
 
+    % display only a subset of objects
     for i = 4:5:254
         data = Frames.*(Frames == i);
         p2 = patch(isosurface(data, 0.5), 'FaceColor',cmap(i,:),'EdgeColor','none');

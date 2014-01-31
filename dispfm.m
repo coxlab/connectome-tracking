@@ -1,24 +1,19 @@
-function effmap = dispfm(ftmap, imsize)
-
-network = cell(1,2);
-network{1} = struct('norm', struct('size', 0), 'pool', struct('size', 3, 'stride', 1), 'filt', struct('size', 9));
-network{2} = struct('norm', struct('size', 0), 'pool', struct('size', 3, 'stride', 1), 'filt', struct('size', 5));
+function effmap = dispfm(ftmap, network, imsize)
 
 effmap = zeros(imsize);
 effcnt = zeros(imsize);
-effrng = calfpsize(network, size(network, 2), 1) - 1;
-%effrng = 100; 
+effrng = calfpsize(network, size(network,2), 1) - 1;
 
 for y=1:size(ftmap,1)
-    for x=1:size(ftmap,2)
-        effloc = [1 1] + ([y x]-[1 1])*(2.^(size(network,2)));
+for x=1:size(ftmap,2)
+    effloc = [1 1] + ([y x]-[1 1])*(2.^(size(network,2)-1));
+    
+    effmap(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) = ...
+    effmap(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) + ftmap(y, x);
 
-        effmap(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) = ...
-        effmap(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) + ftmap(y, x);
-
-        effcnt(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) = ...
-        effcnt(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) + 1;
-    end
+    effcnt(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) = ...
+    effcnt(effloc(1):effloc(1)+effrng, effloc(2):effloc(2)+effrng) + 1;
+end
 end
 
 effcnt(effcnt(:)==0) = 1;
@@ -27,8 +22,6 @@ effmap = effmap ./ effcnt;
 if (nargout == 0)
     imagesc(effmap); drawnow;
 end
-
-
 
 %%%%%%%%%%
 

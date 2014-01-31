@@ -21,11 +21,12 @@ if ~exist('Features','var') || isempty(Features)
     Features = 'SIFT';
 end
 
+addpath(fullfile(pwd,'SIFTflow/mexDenseSIFT'));
+addpath(fullfile(pwd,'SIFTflow/mexDiscreteFlow'));
+addpath(fullfile(pwd, 'SIFTflow'));
+
 if strcmp(Features, 'SIFT')
-    disp('Using SIFT features.')
-    addpath(fullfile(pwd,'SIFTflow/mexDenseSIFT'));
-    addpath(fullfile(pwd,'SIFTflow/mexDiscreteFlow'));
-    addpath(fullfile(pwd, 'SIFTflow'));
+    disp('Using SIFT features.');
 elseif strcmp(Features, 'CoxLab')
     disp('Using CoxLab features.');
     addpath(fullfile(pwd, 'SIFTflow'));

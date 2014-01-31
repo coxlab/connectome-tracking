@@ -1,4 +1,21 @@
 function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thresh, frameStart, frameEnd)
+% EVAL_SEG3D Predicts a 3D labeling for the ISBI dataset from 2D ground
+% truth, evaluating by 4 metrics.
+%   [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thresh, frameStart, frameEnd)
+% 
+%   Inputs:
+%       sz - Desired dimension of image (for cropping)
+%       thresh - An experimentally determined threshold for clustering the
+%       graph (determined by cross-validation)
+%       frameStart - First image in stack to use [1, 100]
+%       frameEnd - Last image in stack to use [1,100]
+%   Outputs:
+%       Pred - Predicted labels for 3D reconstruction
+%       GT - Ground truth labels of 3D reconstruction
+%       rand_err - Rand error as defined by the ISBI 2013 challenge
+%       VI - Variation of information between Pred and GT
+%       num_splits - Split error (number of splits per object)
+%       num_merges - Merge error (number of merges per object)
     
     home_dir = '~/connectome-tracking';
     dataset = 'isbi_merged';
@@ -23,8 +40,6 @@ function [Pred, GT, rand_err, VI, num_splits, num_merges] = eval_seg3D(sz, thres
     end
     
     GT = int16(GT);
-    %Pred = seg3D_coxfeat(Seg, EM, sz, numFrames, thresh);  % returns int16
-    %Pred = seg3D_labels_v2(Seg, EM, sz, numFrames, thresh);  % returns int16
     Pred = seg3D_graphical(Seg, EM, sz, numFrames, thresh, 'CoxLab');  % returns int16
     
     rand_err = SNEMI3D_metrics(GT, Pred);
